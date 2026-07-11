@@ -1,0 +1,35 @@
+data_contract:
+  raw_columns:
+    - id
+    - loan_amnt
+    - term
+    - int_rate
+    - installment
+    - grade
+    - sub_grade
+    - home_ownership
+    - annual_inc
+    - verification_status
+    - issue_d
+    - loan_status
+    - purpose
+    - dti
+    - fico_range_low
+    - fico_range_high
+
+  valid_ranges:
+    fico_range_low: {min: 300, max: 850}
+    fico_range_high: {min: 300, max: 850}
+    dti: {min: 0, max: 100}
+    int_rate: {min: 0, max: 100}
+
+  target:
+    source_column: loan_status
+    default_statuses:
+      - "Charged Off"
+      - "Default"
+      - "Late (31-120 days)"
+    output_column: is_default
+
+  leakage_excluded:
+    - loan_status
