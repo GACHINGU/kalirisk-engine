@@ -16,6 +16,7 @@ def make_fake_loans():
             "fico_range_low": [700, 700, 700, 700, 700],
             "fico_range_high": [750, 750, 750, 750, 750],
             "int_rate": [10, 10, 10, 10, 10],
+            "loan_amnt": [5000, 5000, 5000, 5000, 5000],
         }
     )
 
@@ -28,6 +29,30 @@ def test_sentinel_rows_are_counted_separately_from_invalid_rows():
     assert report["dti_invalid_count"] == 0  # 150 is real and valid, not broken
 
 
+def test_rows_missing_loan_amnt_are_dropped_as_non_loan_rows():
+    """
+    Real Lending Club exports contain stray footer/summary text rows
+    (e.g "Total amount funded in policy code ..."), which land in the
+    dataframe with avery real column empty. These aren't loans and
+    must never reach feature engineering or the model.
+    """
+    # creating a fake dataframe
+    df = pd.DataFrame(
+        {
+            "dti": [20, 30],
+            "fico_range_low": [700, 700],
+            "fico_range_high": [750, 750],
+            "int_rate": [10, 10],
+            "loan_amnt": [5000, None],  # second row mimics a footer row
+        }
+    )
+
+    clean_df, report = validate_raw_loans(df)
+
+    assert report["loan_amnt_missing_count"] == 1
+    assert len(clean_df) == 1
+
+
 def test_genuinely_valid_high_dti_is_kept_not_dropped():
     """
     This is the most important test in these file. If this ever fails,
@@ -37,4 +62,5 @@ def test_genuinely_valid_high_dti_is_kept_not_dropped():
     df = make_fake_loans()
     clean_df, report = validate_raw_loans(df)
 
+    # Since 150 is high, but genuinly valid, within the set bounds in settings.yaml
     assert 150 in clean_df["dti"].values
