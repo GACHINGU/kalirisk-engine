@@ -38,3 +38,6 @@ data_contract:
     dti:
       - 999
       - -1
+  
+  required_not_null:
+    - loan_amnt
