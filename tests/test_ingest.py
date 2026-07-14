@@ -11,8 +11,13 @@ def test_load_raw_loans_has_expected_columns():
     nothing extra.
     """
 
+    # Since the loads_raw_loans returns a df, its only fair to give
+    # it a variable name df
     df = load_raw_loans(RAW_PATH)
 
+    # What we always expect from settings.yaml, the columns we chose.
+    # It must be a dictionary, since DataFrames are akin to dictionaries
+    # for easy comparison later
     expected_columns = {
         "id",
         "loan_amnt",

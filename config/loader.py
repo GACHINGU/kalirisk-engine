@@ -4,7 +4,7 @@
 import yaml
 
 
-# Afunstion that promises to deliver a Python dictionary whenever called
+# A function that promises to deliver a Python dictionary whenever called
 def load_settings(path: str = "config/settings.yaml") -> dict:
     """
     Opens the settings.yaml file and hands back its contents

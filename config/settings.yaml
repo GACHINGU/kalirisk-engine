@@ -41,3 +41,7 @@ data_contract:
   
   required_not_null:
     - loan_amnt
+  
+  train_test_split:
+    train_end_date: "2017-12-31"
+    test_start_date: "2018-01-01"
