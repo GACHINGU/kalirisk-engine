@@ -45,3 +45,7 @@ data_contract:
   train_test_split:
     train_end_date: "2017-12-31"
     test_start_date: "2018-01-01"
+
+  financial_assumptions:
+    ead_basis: loan_amnt # conservative: uses full original loan amount as exposure, not outstanding balance.
+    lgd: 0.90 # unsecured personal loans - low recovery, industry-typical assumption
