@@ -6,7 +6,9 @@ CATEGORICAL_COLS = ["sub_grade", "home_ownership", "verification_status", "purpo
 DROP_COLS = ["id", "issue_d", "term", "grade", "is_default"]
 
 
-def prepare_model_data(train_df: pd.DataFrame, test_df: pd.DataFrame):
+def prepare_model_data(
+    train_df: pd.DataFrame, test_df: pd.DataFrame
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
     """
     Converts train/tests DataFrames into model-ready X/y arrays.
     One-hot encodes categorical columns, then forces tests to match
