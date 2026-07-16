@@ -1,7 +1,11 @@
 # domain/risk/train.py
 
+import joblib
 import lightgbm as lgb
 from sklearn.metrics import roc_auc_score
+
+
+MODEL_PATH = "data/model_artifacts/pd_model_v1.joblib"
 
 
 def train_pd_model(
@@ -37,3 +41,13 @@ def train_pd_model(
     auc_score = roc_auc_score(y_test, default_probabilities)
 
     return model, auc_score
+
+
+def save_model(model: lgb.LGBMClassifier, path: str = MODEL_PATH) -> None:
+    """Saves a trained model to disk so it never needs retraining to be reused."""
+    joblib.dump(model, path)
+
+
+def load_model(path: str = MODEL_PATH):
+    """Loads a previously trained and saved model from disk."""
+    return joblib.load(path)
