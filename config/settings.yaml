@@ -49,3 +49,4 @@ data_contract:
   financial_assumptions:
     ead_basis: loan_amnt # conservative: uses full original loan amount as exposure, not outstanding balance.
     lgd: 0.90 # unsecured personal loans - low recovery, industry-typical assumption
+    principal_basis: loan_amnt   # conservative: uses full original loan amount as the basis for interest income, not declining balance
