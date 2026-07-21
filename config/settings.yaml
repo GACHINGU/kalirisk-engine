@@ -51,3 +51,4 @@ data_contract:
     lgd: 0.90 # unsecured personal loans - low recovery, industry-typical assumption
     principal_basis: loan_amnt   # conservative: uses full original loan amount as the basis for interest income, not declining balance
     cost_of_capital_rate: 5 # percent annual - blended cost of funds assumption
+    max_el_ratio: 0.08 # maximum acceptable expected-loss-to-approved-volume ratio (8%), a proxy for regulatory capital adequacy / loss absorption capacity
