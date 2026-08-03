@@ -31,7 +31,9 @@ def engineer_features(df: pd.DataFrame) -> pd.DataFrame:
     bad_statuses = target_cfg["default_statuses"]
     output_col = target_cfg["output_column"]
 
-    df[output_col] = df[source_col].isin(bad_statuses).astype(int)
+    # making is_default column conditional, these gives way for the new applicants data
+    if source_col in df.columns:
+        df[output_col] = df[source_col].isin(bad_statuses).astype(int)
 
     # --- enforce leakage rule: drop every column listed in leakage_excluded ---
     leakage_cols = settings["data_contract"]["leakage_excluded"]
