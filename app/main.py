@@ -57,7 +57,7 @@ def decide(batch: ApplicantBatch):
     function where its processed and analyzed to give the best cutoff, best
     profit and a full report
     """
-    applicants_as_dicts = [applicant.dict() for applicant in batch.applicants]
+    applicants_as_dicts = [applicant.model_dump() for applicant in batch.applicants]
 
     df = pd.DataFrame(applicants_as_dicts)
 
