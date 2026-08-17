@@ -37,3 +37,18 @@ def test_decide_with_valid_applicant_returns_200() -> None:
     assert "best_profit" in body
     assert "approval_rate" in body
     assert "report" in body
+
+
+def test_decide_with_invalid_data_returns_422() -> None:
+    """
+    Confirms pydantic rejects malformed applicant data BEFORE decide()
+    ever runs - loan_amnt as text instead of a number should fail validation.
+    """
+    broken_applicant = make_valid_applicant()
+    broken_applicant["loan_amnt"] = "ten thousand"
+
+    payload = {"applicants": [broken_applicant]}
+
+    response = client.post("/decide", json=payload)
+
+    assert response.status_code == 422
