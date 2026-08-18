@@ -1,6 +1,7 @@
 # tests/test_main.py
 from fastapi.testclient import TestClient
 from app.main import app
+from unittest.mock import patch
 
 client = TestClient(app)
 
@@ -52,3 +53,30 @@ def test_decide_with_invalid_data_returns_422() -> None:
     response = client.post("/decide", json=payload)
 
     assert response.status_code == 422
+
+
+def test_train_endpoint_calls_training_service_correctly() -> None:
+    """
+    Confirms /train correctly wires into train_and_save_pd_model() and
+    builds the right response - WITHOUT actually training on the real
+    2.26M-row dataset, which would make this test unreasonably slow.
+    We patch it where it's USED (app.main), not where it's DEFINED
+    (services.training_service), since that's the notice board /train
+    actually looks at when it runs.
+    """
+    with patch("app.main.train_and_save_pd_model") as fake_train:
+        # coming up with a beforehand known return value for our mock function so we test the
+        # connection
+        fake_train.return_value = (
+            "fake_model_object",
+            0.75,
+            {"total_rows_checked": 100},
+        )
+
+        response = client.post("/train")
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "auc_score": 0.75,
+        "report": {"total_rows_checked": 100},
+    }

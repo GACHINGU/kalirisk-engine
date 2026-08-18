@@ -1,6 +1,7 @@
 # app/main.py
 
 from services.decisioning_service import decide_best_cutoff_and_profit
+from services.training_service import train_and_save_pd_model
 import joblib
 import pandas as pd
 from fastapi import FastAPI
@@ -10,6 +11,9 @@ from pydantic import BaseModel
 # they find it loaded, just sitting there.
 # No time wasted reloading the model.
 model = joblib.load("data/model_artifacts/pd_model_v1.joblib")
+
+# a hard-coded path, protects me from a path traversal risk or attack
+RAW_DATA_PATH = "data/raw/accepted_2007_to_2018q4.csv/accepted_2007_to_2018Q4.csv"
 
 app = FastAPI()
 
@@ -71,3 +75,15 @@ def decide(batch: ApplicantBatch):
         "approval_rate": approval_rate,
         "report": full_report,
     }
+
+
+@app.post("/train")
+def train():
+    """
+    Retrains the PD model on the fixed, known dataset path - the caller
+    has no ability to specify which files gets read, closing off path
+    traversal risk entirely.
+    """
+    model, auc_score, report = train_and_save_pd_model(RAW_DATA_PATH)
+
+    return {"auc_score": auc_score, "report": report}
