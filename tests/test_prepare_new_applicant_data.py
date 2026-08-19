@@ -93,7 +93,7 @@ def make_fake_model_feature_names_and_fake_new_applicant_data() -> tuple[
             "grade": ["C"],
             "sub_grade": ["C1"],
             "home_ownership": ["MORTGAGE"],
-            "verification_status": ["Verified"],
+            "verification_status": ["Not Verified"],
             "purpose": ["moving"],  # a category never seen by the model, on purpose
             "dti": [25],
         }
@@ -116,3 +116,29 @@ def test_new_applicant_data_columns_match_model_feature_data_exactly() -> None:
     new_applicant_data = prepare_new_applicant_data(new_applicant_data, model)
 
     assert model.feature_name_ == list(new_applicant_data)
+
+
+def test_verification_status_with_space_is_correctly_encoded() -> None:
+    """
+    Regression test for a real bug: LightGBM silently converts spaces to
+    underscores in its own feature_name_ during training, but new applicant
+    data arrives with the true, original values (containing spaces). Without
+    fixing this mismatch, an applicant's real verification status would be
+    silently zeroed out by reindex(), rather than correctly encoded.
+    """
+    model = SimpleNamespace(
+        feature_name_=[
+            "verification_status_Not_Verified",
+            "verification_status_Source_Verified",
+            "verification_status_Verified",
+        ]
+    )
+
+    new_applicant_data, model_past = (
+        make_fake_model_feature_names_and_fake_new_applicant_data()
+    )
+
+    result = prepare_new_applicant_data(new_applicant_data, model)
+
+    assert result["verification_status_Not_Verified"].iloc[0] == True
+    assert result["verification_status_Source_Verified"].iloc[0] == False

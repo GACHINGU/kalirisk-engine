@@ -16,6 +16,7 @@ def prepare_new_applicant_data(df: pd.DataFrame, model) -> pd.DataFrame:
     single source of truth for what the model can actually use.
     """
     X_new = df.drop(columns=DROP_COLS, errors="ignore")
+    X_new["verification_status"] = X_new["verification_status"].str.replace(" ", "_")
     X_new = pd.get_dummies(X_new, columns=CATEGORICAL_COLS)
     X_new = X_new.reindex(columns=model.feature_name_, fill_value=0)
 
