@@ -43,3 +43,36 @@ def find_optimal_cutoff(
             best_cutoff = cutoff
 
     return best_cutoff, best_profit
+
+
+def evaluate_at_cutoff(
+    pd_default, profit_per_loan, expected_loss, loan_amnt, cutoff
+) -> tuple[np.float64, np.float64, np.float64]:
+    """
+    These function lets the underwriter play with different cutoffs, so the
+    profit and expected loss ratio can be felt in real time. The underwriter
+    can even play with cutoffs that would be way beyond safety limits and
+    see what the profits would be.
+
+    Still a purely quantitative finance math function, no other type of code.
+    """
+    # making sure all the inputs ar numpy objects
+    pd_default = np.asarray(pd_default)
+    profit_per_loan = np.asarray(profit_per_loan)
+    expected_loss = np.asarray(expected_loss)
+    loan_amnt = np.asarray(loan_amnt)
+
+    approved_mask = pd_default < cutoff
+
+    # math logic
+    total_profit = profit_per_loan[approved_mask].sum()
+    total_el = expected_loss[approved_mask].sum()
+    total_amnt = loan_amnt[approved_mask].sum()
+
+    # expected loss ratio math
+    el_ratio = total_el / total_amnt if total_amnt > 0 else 0
+
+    # approval rate math
+    approval_rate = approved_mask.sum() / len(pd_default) * 100
+
+    return total_profit, el_ratio, approval_rate

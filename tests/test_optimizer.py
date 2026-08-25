@@ -3,6 +3,7 @@
 import numpy as np
 import pandas as pd
 from domain.portfolio.optimizer import find_optimal_cutoff
+from domain.portfolio.optimizer import evaluate_at_cutoff
 
 
 def make_fake_test_data() -> tuple[pd.Series, pd.Series, pd.Series, pd.Series]:
@@ -41,9 +42,44 @@ def test_find_optimal_cutoff_gives_expected_values() -> None:
     Testing whether the find_optimal_cutoff gives the expected outputs.
     """
     pd_default, profit_per_loan, expected_loss, loan_amnt = make_fake_test_data()
+
     best_cutoff, best_profit = find_optimal_cutoff(
         pd_default, profit_per_loan, expected_loss, loan_amnt
     )
 
     assert np.isclose(best_cutoff, 0.17)
     assert np.isclose(best_profit, 900)
+
+
+def test_evaluate_at_cutoff_returns_numpyscalars() -> None:
+    """
+    Test whether the output tuple (total_profit, el_ratio, approval_rate) is truly a Numpy array
+    """
+    pd_default, profit_per_loan, expected_loss, loan_amnt = make_fake_test_data()
+
+    test_cutoff = 0.40
+
+    total_profit, el_ratio, approval_rate = evaluate_at_cutoff(
+        pd_default, profit_per_loan, expected_loss, loan_amnt, test_cutoff
+    )
+
+    assert np.isscalar(total_profit)
+    assert np.isscalar(el_ratio)
+    assert np.isscalar(approval_rate)
+
+
+def test_evaluate_at_cutoff_gives_expected_values() -> None:
+    """
+    Testing whether evaluate_at_cutoff gives the expected outputs.
+    """
+    pd_default, profit_per_loan, expected_loss, loan_amnt = make_fake_test_data()
+
+    test_cutoff = 0.40
+
+    total_profit, el_ratio, approval_rate = evaluate_at_cutoff(
+        pd_default, profit_per_loan, expected_loss, loan_amnt, test_cutoff
+    )
+
+    assert np.isclose(total_profit, 1250)
+    assert np.isclose(el_ratio, 0.09983050847457627)
+    assert np.isclose(approval_rate, 100)
