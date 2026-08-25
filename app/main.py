@@ -1,6 +1,9 @@
 # app/main.py
 
-from services.decisioning_service import decide_best_cutoff_and_profit
+from services.decisioning_service import (
+    decide_best_cutoff_and_profit,
+    evaluate_applicants_at_cutoff,
+)
 from services.training_service import train_and_save_pd_model
 import joblib
 import pandas as pd
@@ -87,3 +90,34 @@ def train():
     model, auc_score, report = train_and_save_pd_model(RAW_DATA_PATH)
 
     return {"auc_score": auc_score, "report": report}
+
+
+# make sure applicant data and cutoff meets specified requirements
+# BaseModel enforces them
+class CutoffRequest(BaseModel):
+    applicants: list[Applicant]
+    cutoff: float
+
+
+@app.post("/evaluate")
+def evaluate(request: CutoffRequest):
+    """
+    Evaluates a batch of applicants at ONE specific, caller-chosen
+    cutoff - powers the interactive slider. Unlike /decide, these
+    never searches for an optimal cutoff; it honestly reports what
+    happens at exactly the cutoff given, including breaching max_el_ratio.
+    """
+    applicants_as_dicts = [applicant.model_dump() for applicant in request.applicants]
+    df = pd.DataFrame(applicants_as_dicts)
+
+    total_profit, approval_rate, el_ratio, full_report = evaluate_applicants_at_cutoff(
+        df=df, model=model, cutoff=request.cutoff
+    )
+
+    return {
+        "cutoff": request.cutoff,
+        "total_profit": total_profit,
+        "approval_rate": approval_rate,
+        "el_ratio": el_ratio,
+        "report": full_report,
+    }

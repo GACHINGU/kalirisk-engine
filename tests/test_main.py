@@ -80,3 +80,23 @@ def test_train_endpoint_calls_training_service_correctly() -> None:
         "auc_score": 0.75,
         "report": {"total_rows_checked": 100},
     }
+
+
+def test_evaluate_endpoint_returns_el_ratio_even_when_unsafe() -> None:
+    """
+    Confirm /evaluate honestly reports el_ratio at any cutoff, including
+    ones that breach max_el_ratio - unlike /decide, it never hides or
+    refuses a risky cutoff, since the whole point is letting a person
+    feel the tradeoff directly.
+    """
+    payload = {
+        "applicants": [make_valid_applicant()],
+        "cutoff": 0.99,
+    }
+
+    response = client.post("/evaluate", json=payload)
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["cutoff"] == 0.99
+    assert "el_ratio" in body
