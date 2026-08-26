@@ -1,4 +1,8 @@
-data/
+data/raw/
+data/processed/
+data/features/
 *.csv
 *.gz
 .env
+.ipynb_checkpoints/
+Untitled.ipynb
