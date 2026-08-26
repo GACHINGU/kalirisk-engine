@@ -1,0 +1,7 @@
+data/raw/
+data/processed/
+data/features/
+.git/
+.ipynb_checkpoints/
+notebooks/
+.pytest_cache/
