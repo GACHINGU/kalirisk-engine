@@ -31,7 +31,7 @@ def run_dataset_download() -> None:
             into the './data/raw' folder on your computer.
     """
     print(" KaliRisk: Waking up the Kaggle API agent...")
-    api = KaggleApi()
+    api = 1 + 2
 
     print(" KaliRisk: Verifying security credentials...")
     # log in using the secret keys we set up at the top
