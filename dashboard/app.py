@@ -107,7 +107,37 @@ elif choice == "Batch Decision":
             response = requests.post("http://127.0.0.1:8000/decide", json=payload)
             result = response.json()
 
-            st.subheader("Portifolio Decision")
+            st.subheader("Portfolio Decision")
             st.metric("Optimal Cutoff", f"{result['best_cutoff']:.2%}")
             st.metric("Expected Profit", f"KES {result['best_profit']:,.2f}")
             st.metric("Approval Rate", f"{result['approval_rate']:.1f}%")
+
+        st.subheader("Explore Cutoffs")
+        manual_cutoff = st.slider(
+            "Try a different cutoff",
+            min_value=0.01,
+            max_value=0.99,
+            value=0.20,
+            step=0.01,
+        )
+
+        if uploaded_file is not None:
+            eval_payload = {
+                "applicants": batch_df.to_dict(orient="records"),
+                "cutoff": manual_cutoff,
+            }
+            eval_response = requests.post(
+                "http://127.0.0.1:8000/evaluate", json=eval_payload
+            )
+            eval_result = eval_response.json()
+
+            st.metric("Total Profit", f"KES {eval_result['total_profit']:,.2f}")
+            st.metric("Approval Rate", f"{eval_result['approval_rate']:.1f}%")
+
+            el_ratio = eval_result["el_ratio"]
+            if el_ratio > 0.08:
+                st.error(
+                    f"Expected Loss Ratio: {el_ratio:.2%} — exceeds the 8% safety limit!"
+                )
+            else:
+                st.success(f"Expected Loss Ratio: {el_ratio:.2%} — within safety limit")
