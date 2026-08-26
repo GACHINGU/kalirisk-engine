@@ -1,9 +1,12 @@
 # dashboard/app.py
 
+import os
 import streamlit as st
 import joblib
 import requests
 import pandas as pd
+
+API_URL = os.environ.get("API_URL", "http://127.0.0.1:8000")
 
 
 model = joblib.load("data/model_artifacts/pd_model_v1.joblib")
@@ -82,7 +85,7 @@ if choice == "New Applicant":
             ]
         }
 
-        response = requests.post("http://127.0.0.1:8000/decide", json=payload)
+        response = requests.post(f"{API_URL}/decide", json=payload)
         result = response.json()
 
         st.subheader("Decision")
@@ -104,7 +107,7 @@ elif choice == "Batch Decision":
         if submitted_batch:
             payload = {"applicants": batch_df.to_dict(orient="records")}
 
-            response = requests.post("http://127.0.0.1:8000/decide", json=payload)
+            response = requests.post(f"{API_URL}/decide", json=payload)
             result = response.json()
 
             st.subheader("Portfolio Decision")
@@ -126,9 +129,7 @@ elif choice == "Batch Decision":
                 "applicants": batch_df.to_dict(orient="records"),
                 "cutoff": manual_cutoff,
             }
-            eval_response = requests.post(
-                "http://127.0.0.1:8000/evaluate", json=eval_payload
-            )
+            eval_response = requests.post(f"{API_URL}/evaluate", json=eval_payload)
             eval_result = eval_response.json()
 
             st.metric("Total Profit", f"KES {eval_result['total_profit']:,.2f}")
