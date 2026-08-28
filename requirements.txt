@@ -1,4 +1,4 @@
-fastapi
+fastapi==0.139.0
 uvicorn
 pydantic
 streamlit
@@ -11,3 +11,4 @@ requests
 pyyaml
 python-multipart
 pytest
+httpx==0.28.1
