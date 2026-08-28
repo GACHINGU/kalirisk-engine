@@ -1,10 +1,14 @@
 # tests/test_ingest.py
 
+import pytest
 from data_pipeline.ingest import load_raw_loans
 
 RAW_PATH = "data/raw/accepted_2007_to_2018q4.csv/accepted_2007_to_2018Q4.csv"
 
 
+@pytest.mark.skip(
+    reason="Requires the full local 2.26M-row dataset, not available in CI"
+)
 def test_load_raw_loans_has_expected_columns():
     """
     Confirm our ingestion only returns our approve gold columns,
@@ -42,6 +46,9 @@ def test_load_raw_loans_has_expected_columns():
     assert set(df.columns) == expected_columns
 
 
+@pytest.mark.skip(
+    reason="Requires the full local 2.26M-row dataset, not available in CI"
+)
 def test_load_raw_loans_has_rows():
     """
     A basic sanity check - we should never silently get an empty dataframe.
