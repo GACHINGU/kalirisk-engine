@@ -5,6 +5,7 @@ from services.decisioning_service import (
     evaluate_applicants_at_cutoff,
 )
 from services.training_service import train_and_save_pd_model
+from domain.risk.explain import get_feature_importance
 import joblib
 import pandas as pd
 from fastapi import FastAPI
@@ -120,4 +121,22 @@ def evaluate(request: CutoffRequest):
         "approval_rate": approval_rate,
         "el_ratio": el_ratio,
         "report": full_report,
+    }
+
+
+# designing a GET request for model's feature importance
+# will display global explainability
+@app.get("/model-insights")
+def model_insights(top_n: int = 10):
+    """
+    Returns the model's global feature importance - which features it
+    relies on most, across every applicant it has ever scored. Read-only,
+    needs no input, since it's a property of the trained model itself.
+    top_n is an optional query parameter, defaulting to 10.
+    """
+    importance_df = get_feature_importance(model=model, top_n=top_n)
+
+    return {
+        "features": importance_df["feature"].tolist(),
+        "importance": importance_df["importance"].tolist(),
     }

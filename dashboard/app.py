@@ -37,7 +37,9 @@ verification_status_options = get_options("verification_status_")
 
 st.title("KaliRisk")
 
-choice = st.sidebar.radio("Navigate", ["New Applicant", "Batch Decision"])
+choice = st.sidebar.radio(
+    "Navigate", ["New Applicant", "Batch Decision", "Model Insights"]
+)
 
 if choice == "New Applicant":
     st.header("New Applicant")
@@ -142,3 +144,21 @@ elif choice == "Batch Decision":
                 )
             else:
                 st.success(f"Expected Loss Ratio: {el_ratio:.2%} — within safety limit")
+
+elif choice == "Model Insights":
+    st.header("Model Insights")
+    st.write(
+        "What the model relies on most, across every applicant it has ever scored."
+    )
+
+    response = requests.get(f"{API_URL}/model-insights")
+    result = response.json()
+
+    importance_df = pd.DataFrame(
+        {
+            "feature": result["features"],
+            "importance": result["importance"],
+        }
+    )
+
+    st.bar_chart(importance_df.set_index("feature")["importance"])
