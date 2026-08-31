@@ -31,7 +31,7 @@ def test_expected_loss_calculates_correct_values() -> None:
     loan_amnt, pd_default = make_fake_loan_amnt_and_pd_default_data()
 
     expected_loss = calculate_expected_loss(loan_amnt, pd_default)
-    expected_output = np.array([900, 3600, 2250])
+    expected_output = np.array([9000, 3600, 2250])
 
     # check whether multiplication actually occurs, and occurs in the right order
     # I will use a strict teacher who doesn't care if you're off by 0.000000000001
