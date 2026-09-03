@@ -14,7 +14,7 @@ from domain.portfolio.optimizer import find_optimal_cutoff, evaluate_at_cutoff
 
 def prepare_and_score_applicants(
     df: pd.DataFrame, model
-) -> tuple[np.float64, np.float64, np.float64, np.float64, dict]:
+) -> tuple[np.float64, np.float64, np.float64, np.float64, dict, pd.DataFrame]:
     """
     Shared pipeline for both search-based decisioning (/decide) and
     single-cutoff evaluation (the interactive slider): validate,
@@ -40,7 +40,7 @@ def prepare_and_score_applicants(
         expected_loss=expected_loss,
     )
 
-    return pd_default, expected_loss, profit_per_loan, loan_amnt, report
+    return pd_default, expected_loss, profit_per_loan, loan_amnt, report, X_new
 
 
 def decide_best_cutoff_and_profit(
@@ -55,7 +55,7 @@ def decide_best_cutoff_and_profit(
     report separates data-quality findings from the decision itself,
     so a caller never has to guess which is which.
     """
-    pd_default, expected_loss, profit_per_loan, loan_amnt, report = (
+    pd_default, expected_loss, profit_per_loan, loan_amnt, report, X_new = (
         prepare_and_score_applicants(df, model)
     )
     best_cutoff, best_profit = find_optimal_cutoff(
@@ -84,7 +84,7 @@ def evaluate_applicants_at_cutoff(
     someone feel the profit/risk tradeoff directly, including exploring
     cutoffs that would breach max_el_ratio (shown honestly, not hidden).
     """
-    pd_default, expected_loss, profit_per_loan, loan_amnt, report = (
+    pd_default, expected_loss, profit_per_loan, loan_amnt, report, X_new = (
         prepare_and_score_applicants(df, model)
     )
 
