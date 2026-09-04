@@ -94,6 +94,38 @@ if choice == "New Applicant":
         st.metric("Optimal Cutoff", f"{result['best_cutoff']:.2%}")
         st.metric("Expected Profit", f"KES {result['best_profit']:,.2f}")
         st.metric("Approval Rate", f"{result['approval_rate']:.1f}%")
+    explain_clicked = st.button("Why this decision?")
+
+    if explain_clicked:
+        applicant_payload = {
+            "loan_amnt": loan_amnt,
+            "term": term,
+            "int_rate": int_rate,
+            "installment": installment,
+            "grade": grade,
+            "sub_grade": sub_grade,
+            "home_ownership": home_ownership,
+            "annual_inc": annual_inc,
+            "verification_status": verification_status,
+            "purpose": purpose,
+            "dti": dti,
+            "fico_range_low": fico_range_low,
+            "fico_range_high": fico_range_high,
+        }
+
+        explain_response = requests.post(f"{API_URL}/explain", json=applicant_payload)
+        explain_result = explain_response.json()
+
+        st.subheader("Why This Decision")
+        st.write(f"Predicted default probability: {explain_result['predicted_pd']:.2%}")
+
+        shap_df = pd.DataFrame(
+            {
+                "feature": explain_result["features"],
+                "shap_value": explain_result["shap_values"],
+            }
+        )
+        st.bar_chart(shap_df.set_index("feature")["shap_value"])
 
 elif choice == "Batch Decision":
     st.header("Batch Decision")
