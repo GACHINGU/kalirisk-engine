@@ -3,9 +3,11 @@
 from services.decisioning_service import (
     decide_best_cutoff_and_profit,
     evaluate_applicants_at_cutoff,
+    prepare_and_score_applicants,
 )
 from services.training_service import train_and_save_pd_model
 from domain.risk.explain import get_feature_importance
+from domain.risk.explain import explain_applicant
 import joblib
 import pandas as pd
 from fastapi import FastAPI
@@ -139,4 +141,26 @@ def model_insights(top_n: int = 10):
     return {
         "features": importance_df["feature"].tolist(),
         "importance": importance_df["importance"].tolist(),
+    }
+
+
+@app.post("/explain")
+def explain(applicant: Applicant, top_n: int = 10):
+    """
+    Explains ONE specific applicant's prediction using SHAP - answers
+    "why did I get this score," unlike /model-insights which describes
+    the model's behaviour globally, across everyone it has ever scored.
+    """
+    df = pd.DataFrame([applicant.model_dump()])
+
+    pd_default, expected_loss, profit_per_loan, loan_amnt, report, X_new = (
+        prepare_and_score_applicants(df, model)
+    )
+
+    explanation_df = explain_applicant(model, X_new, top_n=top_n)
+
+    return {
+        "predicted_pd": pd_default[0],
+        "features": explanation_df["feature"].tolist(),
+        "shap_values": explanation_df["shap_value"].tolist(),
     }
