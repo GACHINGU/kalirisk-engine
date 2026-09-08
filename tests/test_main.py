@@ -100,3 +100,18 @@ def test_evaluate_endpoint_returns_el_ratio_even_when_unsafe() -> None:
     body = response.json()
     assert body["cutoff"] == 0.99
     assert "el_ratio" in body
+
+
+def test_health_endpoint_returns_machine_ok_status() -> None:
+    """
+    Confirms /health returns a minimal, structured, machine-checkable
+    response - unlike "/", which returns a friendly human-readable
+    message, this endpoint exists specifically for automated
+    monitoring tools to check on a predictable schedule.
+    """
+
+    response = client.get("/health")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["status"] == "ok"

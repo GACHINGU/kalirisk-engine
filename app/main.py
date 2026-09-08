@@ -31,6 +31,17 @@ def read_root():
     return {"message": "KaliRisk is alive"}
 
 
+@app.get("/health")
+def health_check():
+    """
+    A minimal Structured endpoint for aoutomated monitoring - unlike
+    the friendly human-readable message at "/", this returns a fixed,
+    predictable shape a machine can check with a simple equality
+    comparison, forever, without ever needing to change.
+    """
+    return {"status": "ok"}
+
+
 # make sure  applicant data meets the specific requirements
 # BaseModel the trained mercenary at enforcing the requirements
 class Applicant(BaseModel):
